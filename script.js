@@ -141,7 +141,7 @@ input.addEventListener("keyup", (e) => {
     getData(input.value);
   }
 });
-
+getData("keyboard");
 slider.addEventListener("click", () => {
   document.body.classList.toggle("darkTheme");
   // darkMoon.classList.toggle("none");
