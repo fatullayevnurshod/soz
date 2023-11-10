@@ -6,9 +6,13 @@ let input = document.querySelector("#search_word");
 let pley = document.querySelector(".pleyr img");
 let audio = document.querySelector("audio source");
 let audio2 = document.querySelector("audio");
-let ul = document.querySelectorAll(".Part ul .li2");
-let key = document.querySelector(".key");
+
 let none = document.querySelector(".none");
+let orta = document.querySelector(".orta");
+let orta2 = document.querySelector(".orta2");
+let oxiri = document.querySelector(".oxiri");
+let umumiy = document.querySelector(".umumiy");
+let link = document.querySelector(".link");
 
 none.style.display = "none";
 
@@ -18,45 +22,117 @@ function getData(soz) {
       return resp.json();
     })
     .then((data) => {
-      if (data[0].word == undefined) {
-        none.style.display = "inline-block";
-      }
       console.log(data);
-      h1.textContent = data[0].word;
-      document.querySelector(".pley p").textContent = data[0].phonetics[1].text;
-      for (let i = 0; i < data[0].meanings[2].definitions.length - 2; i++) {
-        console.log(i);
-        let t = 0;
-        for (let j = 0; j < data[0].meanings.length; j++) {
-          t = j;
-        }
-        ul[i].textContent = data[0].meanings[t].definitions[i].definition;
+      if (data[0] == undefined) {
+        none.style.display = "inline-block";
+        umumiy.style.display = "none";
+        pley.style.display = "none";
+        orta.style.display = "none";
+        orta2.style.display = "none";
+        oxiri.style.display = "none";
+      } else {
+        none.style.display = "none";
+        umumiy.style.display = "inline-block";
+        pley.style.display = "inline-block";
+        orta.style.display = "inline-block";
+        orta2.style.display = "inline-block";
+        oxiri.style.display = "inline-block";
       }
-      // ul[0].textContent = data[0].meanings[2].definitions[0].definition;
-      // ul[1].textContent = data[0].meanings[2].definitions[1].definition;
-      // ul[2].textContent = data[0].meanings[2].definitions[2].definition;
-      document.querySelector(".synonyms h5").textContent =
-        data[0].meanings[0].synonyms;
-      document.querySelector(".li").textContent =
-        data[0].meanings[1].definitions[0].definition;
-      key.textContent = data[0].meanings[0].definitions[0].definition;
-
-      pley.onclick = function () {
-        console.log(data[0].phonetics[0].audio);
-        audio.setAttribute("src", data[0].phonetics[1].audio);
-        // audio.pley();
-        //  (e) => {
-        //   e.textContent = data[0].phonetics[0].audio;
-        //   console.log(data[0].license.url);
-        // });
-        // // var audio = new Audio("data[0].license.url");
-        // audio.play();
-        // audio.addEventListener("canplaythrough", (event) => {
-        //   /* the audio is now playable; play it if permissions allow */
-        //   event.play();
-        // });
-      };
+      if (data[0].meanings.length > 0) {
+        showInUi(data[0]);
+        ortafun(data[0]);
+        ortafun2(data[0]);
+        oxir(data[0]);
+      }
     });
+}
+
+// audio2.play();
+function showInUi(data) {
+  console.log(data);
+  let paudio = data.phonetics.filter((el) => el.audio != "")[0]?.audio;
+  audio2.setAttribute("src", paudio);
+  pley.onclick = function () {
+    console.log(data.phonetics[0].audio);
+    audio2.play();
+  };
+  let ptext = data.phonetics.filter((el) => Boolean(el.text) != false)[0]?.text;
+  h1.textContent = data.word;
+
+  document.querySelector(".pley p").textContent = ptext;
+
+  document.querySelector(".pley p").style.display = ptext ? "block" : "none";
+  pley.style.display = paudio ? "block" : "none";
+}
+
+function ortafun(data) {
+  if (data.meanings.length >= 1) {
+    for (let i = 0; i < data.meanings.length; i++) {
+      let men = data.meanings[i];
+
+      let k = "";
+      for (let j = 0; j < men.definitions.length; j++) {
+        k += "<li>" + men.definitions[j].definition + "</li>";
+      }
+
+      let s = `<div class="Part">
+<div class="part">
+  <h3>${men.partOfSpeech}</h3>
+  <div></div>
+</div>
+<h2 class="meaning">Meaning</h2>
+<ul>
+  ${k}
+</ul>
+</div>
+
+<div class="synonyms">
+<p>Synonyms</p>
+<h5>${data.meanings[0].synonyms}</h5>
+</div>
+`;
+      orta.innerHTML = s;
+    }
+  }
+}
+
+function ortafun2(data) {
+  if (data.meanings.length != 2 && data.meanings[1]) {
+    let sum2 = `<div class="Part">
+  <div class="part">
+    <h3>${data.meanings[1].partOfSpeech}</h3>
+    <div></div>
+  </div>
+  <h2 class="meaning">Meaning</h2>
+  <ul>
+    <li class='li'> ${data.meanings[1].definitions[0].definition}</li>
+  </ul>
+  <p class="key">
+    ${data.meanings[1].definitions[0].definition}
+  </p>
+</div>`;
+    orta2.innerHTML = sum2;
+  }
+}
+
+function oxir(data) {
+  if (data.meanings.length != 1) {
+    let sum2 = `<div class="Part">
+  <div class="part">
+    <h3>${data.meanings[0].partOfSpeech}</h3>
+    <div></div>
+  </div>
+  <h2 class="meaning">Meaning</h2>
+  <ul>
+    <li class='li'> ${data.meanings[0].definitions[0].definition}</li>
+  </ul>
+  <p class="key">
+    ${data.meanings[0].definitions[0].definition}
+  </p>
+</div>`;
+    oxiri.innerHTML = sum2;
+  }
+  link.textContent = data.sourceUrls;
 }
 
 input.addEventListener("keyup", (e) => {
@@ -71,3 +147,17 @@ slider.addEventListener("click", () => {
   // darkMoon.classList.toggle("none");
   // lightMoon.classList.toggle("none");
 });
+
+let a = document.querySelectorAll(".dropdown-content a");
+
+for (let i = 0; i < a.length; i++) {
+  a[i].onclick = function (e) {
+    document.body.classList.remove("Sans-Serif");
+    document.body.classList.remove("Serif");
+    document.body.classList.remove("mono");
+    document.body.classList.add(e.target.className);
+    console.log(e.target.className);
+    // fontOption.classList.add("exit");
+  };
+  console.log(i);
+}
